@@ -1,4 +1,4 @@
-import { PalkkahaarukkaIcon } from './ui/icons/palkkahaarukka';
+import { PalkkahaarukkaIcon } from './icons/palkkahaarukka';
 
 function Header() {
 	return (

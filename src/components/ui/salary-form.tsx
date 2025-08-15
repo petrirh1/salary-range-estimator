@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Check, ChevronsUpDown, Loader2Icon, RefreshCw } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { useMediaQuery } from '@react-hook/media-query';
 import {
 	Command,
@@ -22,10 +22,10 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-} from './ui/command';
+} from './command';
 import { useEffect, useState } from 'react';
-import { Drawer, DrawerContent, DrawerTrigger } from './ui/drawer';
-import { DialogDescription, DialogTitle } from './ui/dialog';
+import { Drawer, DrawerContent, DrawerTrigger } from './drawer';
+import { DialogDescription, DialogTitle } from './dialog';
 import { useFetch } from '@/hooks/useFetch';
 import type { FormValidValuesResponse, SalaryRangeRequest } from '@/types';
 import { toast } from 'sonner';

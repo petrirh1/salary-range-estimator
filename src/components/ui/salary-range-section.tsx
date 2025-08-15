@@ -1,5 +1,5 @@
 import { ChartColumn } from 'lucide-react';
-import { Button } from './ui/button';
+import { Button } from './button';
 import Markdown from 'react-markdown';
 import {
 	Dialog,
@@ -10,7 +10,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from './ui/dialog';
+} from './dialog';
 import type { SalaryRangeResponse } from '@/types';
 
 interface SalaryRangeSectionProps {

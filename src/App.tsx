@@ -1,9 +1,9 @@
-import { SalaryForm } from './components/salary-form';
-import { SalaryRangeSection } from './components/salary-range-section';
-import { Header } from './components/header';
+import { SalaryForm } from './components/ui/salary-form';
+import { SalaryRangeSection } from './components/ui/salary-range-section';
+import { Header } from './components/ui/header';
 import { useEffect } from 'react';
 import { toast, Toaster } from 'sonner';
-import { Footer } from './components/footer';
+import { Footer } from './components/ui/footer';
 import { useFetch } from './hooks/useFetch';
 import type { SalaryRangeRequest, SalaryRangeResponse } from './types';
 
