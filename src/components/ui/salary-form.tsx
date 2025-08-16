@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { cn, deepEqual } from '@/lib/utils';
+import { deepEqual } from '@/lib/utils';
 import {
 	Form,
 	FormControl,
@@ -12,25 +12,14 @@ import {
 	FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Check, ChevronsUpDown, Loader2Icon, RefreshCw } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
-import { useMediaQuery } from '@react-hook/media-query';
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from './command';
+import { Loader2Icon, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Drawer, DrawerContent, DrawerTrigger } from './drawer';
-import { DialogDescription, DialogTitle } from './dialog';
 import { useFetch } from '@/hooks/useFetch';
 import type { FormValidValuesResponse, SalaryRangeRequest } from '@/types';
 import { toast } from 'sonner';
+import { Combobox } from './combobox';
 
-const formSchema = z.object({
+export const formSchema = z.object({
 	jobTitle: z.string().min(1),
 	experience: z
 		.number({
@@ -52,8 +41,9 @@ const formSchema = z.object({
 const defaultValues = {
 	jobTitle: '',
 	experience: undefined,
+	education: undefined,
 	industry: '',
-	location: '',
+	location: undefined,
 	technologies: [],
 	currentSalary: undefined,
 };
@@ -64,14 +54,10 @@ interface SalaryFormProps {
 	loading: boolean;
 }
 
+export type SalaryFormValues = z.infer<typeof formSchema>;
+
 function SalaryForm({ submit, loading, error }: SalaryFormProps) {
-	const [openJobTitle, setOpenJobTitle] = useState(false);
-	const [openEducation, setOpenEducation] = useState(false);
-	const [openIndustry, setOpenIndustry] = useState(false);
-	const [openLocation, setOpenLocation] = useState(false);
-	const [openTechnologies, setOpenTechnologies] = useState(false);
 	const [lastSubmittedValues, setLastSubmittedValues] = useState<SalaryRangeRequest | null>(null);
-	const isDesktop = useMediaQuery('(min-width: 768px)');
 
 	const {
 		data: values,
@@ -119,134 +105,21 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 				onSubmit={form.handleSubmit(onSubmit)}
 				className='space-y-8 mx-auto py-8 border px-8 mt-4 rounded-lg bg-neutral-50'>
 				{/* Job Title */}
-				{isDesktop && (
-					<FormField
-						control={form.control}
-						name='jobTitle'
-						render={({ field }) => (
-							<FormItem className='flex flex-col'>
-								<FormLabel>Työnimike</FormLabel>
-								<Popover open={openJobTitle} onOpenChange={setOpenJobTitle}>
-									<PopoverTrigger asChild>
-										<FormControl>
-											<Button
-												disabled={loading || valuesLoading}
-												variant='outline'
-												role='combobox'
-												className={cn(
-													'w-full items-center justify-between bg-white',
-													!field.value && 'text-muted-foreground'
-												)}>
-												<span className='truncate flex-1 min-w-0 text-left'>
-													{field.value
-														? values?.jobTitles.find((jobTitle) => jobTitle === field.value)
-														: 'Valitse työnimike'}
-												</span>
-												<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-											</Button>
-										</FormControl>
-									</PopoverTrigger>
-									<PopoverContent align={'start'} className='p-0'>
-										<Command className='max-h-[300px]'>
-											<CommandInput placeholder='Hae työnimikettä' />
-											<CommandList>
-												<CommandEmpty>Työnimikettä ei löytynyt</CommandEmpty>
-												<CommandGroup>
-													{values?.jobTitles?.map((jobTitle) => (
-														<CommandItem
-															value={jobTitle}
-															key={jobTitle}
-															onSelect={() => {
-																form.setValue('jobTitle', jobTitle, { shouldValidate: true });
-																setOpenJobTitle(false);
-															}}>
-															<Check
-																className={cn(
-																	'mr-2 h-4 w-4',
-																	jobTitle === field.value ? 'opacity-100' : 'opacity-0'
-																)}
-															/>
-															{jobTitle}
-														</CommandItem>
-													))}
-												</CommandGroup>
-											</CommandList>
-										</Command>
-									</PopoverContent>
-								</Popover>
-							</FormItem>
-						)}
-					/>
-				)}
-				{!isDesktop && (
-					<FormField
-						control={form.control}
-						name='jobTitle'
-						render={({ field }) => (
-							<FormItem className='flex flex-col'>
-								<FormLabel>Työnimike</FormLabel>
-								<Drawer open={openJobTitle} onOpenChange={setOpenJobTitle}>
-									<DrawerTrigger asChild>
-										<FormControl>
-											<Button
-												disabled={loading || valuesLoading}
-												variant='outline'
-												role='combobox'
-												className={cn(
-													'w-full items-center justify-between bg-white',
-													!field.value && 'text-muted-foreground'
-												)}>
-												<span className='truncate flex-1 min-w-0 text-left'>
-													{field.value
-														? values?.jobTitles.find((jobTitle) => jobTitle === field.value)
-														: 'Valitse työnimike'}
-												</span>
-												<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-											</Button>
-										</FormControl>
-									</DrawerTrigger>
-									<DrawerContent className='p-0 bg-white'>
-										<DialogTitle className='px-4 pt-4 text-lg font-semibold'>Työnimike</DialogTitle>
-										<DialogDescription className='px-4 pb-4 text-sm text-muted-foreground'>
-											Valitse työnimike
-										</DialogDescription>
-										<div className='px-4 py-0'>
-											<Command className='max-h-[60vh]'>
-												<CommandInput placeholder='Hae työnimikettä' className='text-base' />
-												<CommandList>
-													<CommandEmpty>Työnimikettä ei löytynyt</CommandEmpty>
-													<CommandGroup>
-														{values?.jobTitles?.map((jobTitle) => (
-															<CommandItem
-																value={jobTitle}
-																key={jobTitle}
-																onSelect={() => {
-																	form.setValue('jobTitle', jobTitle);
-																	setOpenJobTitle(false);
-																}}>
-																<Check
-																	className={cn(
-																		'mr-2 h-4 w-4',
-																		jobTitle === field.value ? 'opacity-100' : 'opacity-0'
-																	)}
-																/>
-																{jobTitle}
-															</CommandItem>
-														))}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</div>
-									</DrawerContent>
-								</Drawer>
-							</FormItem>
-						)}
-					/>
-				)}
+				<Combobox
+					form={form}
+					loading={loading}
+					valuesLoading={valuesLoading}
+					values={values?.jobTitles}
+					fieldName='jobTitle'
+					label={'Työnimike'}
+					defaultLabel={'Valitse työnimike'}
+					placeholder={'Hae työnimikettä'}
+					noResultsText={'Työnimikettä ei löytynyt'}
+				/>
 
 				<div className='flex gap-4'>
-					{/* Experience */}
 					<div className='flex-shrink basis-1/2 min-w-0'>
+						{/* Experience */}
 						<FormField
 							disabled={loading}
 							control={form.control}
@@ -274,567 +147,66 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 
 					{/* Education */}
 					<div className='flex-grow flex-shrink basis-1/2 min-w-0'>
-						{isDesktop && (
-							<FormField
-								control={form.control}
-								name='education'
-								render={({ field }) => (
-									<FormItem className='flex flex-col'>
-										<FormLabel>Koulutustaso (valinnainen)</FormLabel>
-										<Popover open={openEducation} onOpenChange={setOpenEducation}>
-											<PopoverTrigger asChild>
-												<FormControl>
-													<Button
-														disabled={loading || valuesLoading}
-														variant='outline'
-														role='combobox'
-														className={cn(
-															'w-full items-center justify-between bg-white',
-															!field.value && 'text-muted-foreground'
-														)}>
-														<span className='truncate flex-1 min-w-0 text-left'>
-															{field.value
-																? values?.educations.find((education) => education === field.value)
-																: 'Valitse koulutustaso'}
-														</span>
-														<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-													</Button>
-												</FormControl>
-											</PopoverTrigger>
-											<PopoverContent align={'start'} className='p-0'>
-												<Command className='max-h-[300px]'>
-													<CommandInput placeholder='Hae koulutustasoa' />
-													<CommandList>
-														<CommandEmpty>Koulutustasoa ei löytynyt</CommandEmpty>
-														<CommandGroup>
-															{values?.educations?.map((education) => (
-																<CommandItem
-																	value={education}
-																	key={education}
-																	onSelect={() => {
-																		const currentValue = form.getValues('education');
-																		form.setValue(
-																			'education',
-																			currentValue === education ? undefined : education
-																		);
-																		setOpenEducation(false);
-																	}}>
-																	<Check
-																		className={cn(
-																			'mr-2 h-4 w-4',
-																			education === field.value ? 'opacity-100' : 'opacity-0'
-																		)}
-																	/>
-																	{education}
-																</CommandItem>
-															))}
-														</CommandGroup>
-													</CommandList>
-												</Command>
-											</PopoverContent>
-										</Popover>
-									</FormItem>
-								)}
-							/>
-						)}
-						{!isDesktop && (
-							<FormField
-								control={form.control}
-								name='education'
-								render={({ field }) => (
-									<FormItem className='flex flex-col'>
-										<FormLabel>Koulutustaso (valinnainen)</FormLabel>
-										<Drawer open={openEducation} onOpenChange={setOpenEducation}>
-											<DrawerTrigger asChild>
-												<FormControl>
-													<Button
-														disabled={loading || valuesLoading}
-														variant='outline'
-														role='combobox'
-														className={cn(
-															'w-full items-center justify-between bg-white',
-															!field.value && 'text-muted-foreground'
-														)}>
-														<span className='truncate flex-1 min-w-0 text-left'>
-															{field.value
-																? values?.educations.find((education) => education === field.value)
-																: 'Valitse koulutustaso'}
-														</span>
-														<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-													</Button>
-												</FormControl>
-											</DrawerTrigger>
-											<DrawerContent className='p-0 bg-white'>
-												<DialogTitle className='px-4 pt-4 text-lg font-semibold'>
-													Koulutustaso (valinnainen)
-												</DialogTitle>
-												<DialogDescription className='px-4 pb-4 text-sm text-muted-foreground'>
-													Valitse koulutustaso
-												</DialogDescription>
-												<div className='px-4 py-0'>
-													<Command className='max-h-[60vh]'>
-														<CommandInput placeholder='Hae koulutustasoa' className='text-base' />
-														<CommandList>
-															<CommandEmpty>Koulutustasoa ei löytynyt</CommandEmpty>
-															<CommandGroup>
-																{values?.educations.map((education) => (
-																	<CommandItem
-																		value={education}
-																		key={education}
-																		onSelect={() => {
-																			const currentValue = form.getValues('education');
-																			form.setValue(
-																				'education',
-																				currentValue === education ? undefined : education
-																			);
-																			setOpenEducation(false);
-																		}}>
-																		<Check
-																			className={cn(
-																				'mr-2 h-4 w-4',
-																				education === field.value ? 'opacity-100' : 'opacity-0'
-																			)}
-																		/>
-																		{education}
-																	</CommandItem>
-																))}
-															</CommandGroup>
-														</CommandList>
-													</Command>
-												</div>
-											</DrawerContent>
-										</Drawer>
-									</FormItem>
-								)}
-							/>
-						)}
+						<Combobox
+							form={form}
+							loading={loading}
+							valuesLoading={valuesLoading}
+							values={values?.educations}
+							fieldName='education'
+							label={'Koulutustaso (valinnainen)'}
+							defaultLabel={'Valitse koulutustaso'}
+							placeholder={'Hae koulutustasoa'}
+							noResultsText={'Koulutustasoa ei löytynyt'}
+						/>
 					</div>
 				</div>
 
-				{/* Industry */}
 				<div className='flex gap-4 '>
 					<div className='flex-shrink basis-1/2 min-w-0'>
-						{isDesktop && (
-							<FormField
-								control={form.control}
-								name='industry'
-								render={({ field }) => (
-									<FormItem className='flex flex-col'>
-										<FormLabel>Toimiala</FormLabel>
-										<Popover open={openIndustry} onOpenChange={setOpenIndustry}>
-											<PopoverTrigger asChild>
-												<FormControl>
-													<Button
-														disabled={loading || valuesLoading}
-														variant='outline'
-														role='combobox'
-														className={cn(
-															'w-full items-center justify-between bg-white',
-															!field.value && 'text-muted-foreground'
-														)}>
-														<span className='truncate flex-1 min-w-0 text-left'>
-															{field.value
-																? values?.industries.find((industry) => industry === field.value)
-																: 'Valitse toimiala'}
-														</span>
-														<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-													</Button>
-												</FormControl>
-											</PopoverTrigger>
-											<PopoverContent align={'start'} className='p-0'>
-												<Command className='max-h-[300px]'>
-													<CommandInput placeholder='Hae toimialaa' />
-													<CommandList>
-														<CommandEmpty>Toimialaa ei löytynyt</CommandEmpty>
-														<CommandGroup>
-															{values?.industries?.map((industry) => (
-																<CommandItem
-																	value={industry}
-																	key={industry}
-																	onSelect={() => {
-																		form.setValue('industry', industry, { shouldValidate: true });
-																		setOpenIndustry(false);
-																	}}>
-																	<Check
-																		className={cn(
-																			'mr-2 h-4 w-4',
-																			industry === field.value ? 'opacity-100' : 'opacity-0'
-																		)}
-																	/>
-																	{industry}
-																</CommandItem>
-															))}
-														</CommandGroup>
-													</CommandList>
-												</Command>
-											</PopoverContent>
-										</Popover>
-									</FormItem>
-								)}
-							/>
-						)}
-						{!isDesktop && (
-							<FormField
-								control={form.control}
-								name='industry'
-								render={({ field }) => (
-									<FormItem className='flex flex-col'>
-										<FormLabel>Toimiala</FormLabel>
-										<Drawer open={openIndustry} onOpenChange={setOpenIndustry}>
-											<DrawerTrigger asChild>
-												<FormControl>
-													<Button
-														disabled={loading || valuesLoading}
-														variant='outline'
-														role='combobox'
-														className={cn(
-															'w-full items-center justify-between bg-white',
-															!field.value && 'text-muted-foreground'
-														)}>
-														<span className='truncate flex-1 min-w-0 text-left'>
-															{field.value
-																? values?.industries.find((industry) => industry === field.value)
-																: 'Valitse toimiala'}
-														</span>
-														<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-													</Button>
-												</FormControl>
-											</DrawerTrigger>
-											<DrawerContent className='p-0 bg-white'>
-												<DialogTitle className='px-4 pt-4 text-lg font-semibold'>
-													Toimiala
-												</DialogTitle>
-												<DialogDescription className='px-4 pb-4 text-sm text-muted-foreground'>
-													Valitse toimiala
-												</DialogDescription>
-												<div className='px-4 py-0'>
-													<Command className='max-h-[60vh]'>
-														<CommandInput placeholder='Hae toimialaa' className='text-base' />
-														<CommandList>
-															<CommandEmpty>Toimialaa ei löytynyt</CommandEmpty>
-															<CommandGroup>
-																{values?.industries?.map((industry) => (
-																	<CommandItem
-																		value={industry}
-																		key={industry}
-																		onSelect={() => {
-																			form.setValue('industry', industry, { shouldValidate: true });
-																			setOpenIndustry(false);
-																		}}>
-																		<Check
-																			className={cn(
-																				'mr-2 h-4 w-4',
-																				industry === field.value ? 'opacity-100' : 'opacity-0'
-																			)}
-																		/>
-																		{industry}
-																	</CommandItem>
-																))}
-															</CommandGroup>
-														</CommandList>
-													</Command>
-												</div>
-											</DrawerContent>
-										</Drawer>
-									</FormItem>
-								)}
-							/>
-						)}
+						{/* Industry */}
+						<Combobox
+							form={form}
+							loading={loading}
+							valuesLoading={valuesLoading}
+							values={values?.industries}
+							fieldName='industry'
+							label={'Toimiala'}
+							defaultLabel={'Valitse toimiala'}
+							placeholder={'Hae toimialaa'}
+							noResultsText={'Toimialaa ei löytynyt'}
+						/>
 					</div>
 
 					{/* Location */}
 					<div className='flex-grow flex-shrink basis-1/2 min-w-0'>
-						{isDesktop && (
-							<FormField
-								control={form.control}
-								name='location'
-								render={({ field }) => (
-									<FormItem className='flex flex-col'>
-										<FormLabel>Sijainti (valinnainen)</FormLabel>
-										<Popover open={openLocation} onOpenChange={setOpenLocation}>
-											<PopoverTrigger asChild>
-												<FormControl>
-													<Button
-														disabled={loading || valuesLoading}
-														variant='outline'
-														role='combobox'
-														className={cn(
-															'w-full items-center justify-between bg-white',
-															!field.value && 'text-muted-foreground'
-														)}>
-														<span className='truncate flex-1 min-w-0 text-left'>
-															{field.value
-																? values?.locations.find((location) => location === field.value)
-																: 'Valitse sijainti'}
-														</span>
-														<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-													</Button>
-												</FormControl>
-											</PopoverTrigger>
-											<PopoverContent align={'start'} className='p-0'>
-												<Command className='max-h-[300px]'>
-													<CommandInput placeholder='Hae sijaintia' />
-													<CommandList>
-														<CommandEmpty>Sijaintia ei löytynyt</CommandEmpty>
-														<CommandGroup>
-															{values?.locations?.map((location) => (
-																<CommandItem
-																	value={location}
-																	key={location}
-																	onSelect={() => {
-																		const currentValue = form.getValues('location');
-																		form.setValue(
-																			'location',
-																			currentValue === location ? undefined : location
-																		);
-																		setOpenEducation(false);
-																	}}>
-																	<Check
-																		className={cn(
-																			'mr-2 h-4 w-4',
-																			location === field.value ? 'opacity-100' : 'opacity-0'
-																		)}
-																	/>
-																	{location}
-																</CommandItem>
-															))}
-														</CommandGroup>
-													</CommandList>
-												</Command>
-											</PopoverContent>
-										</Popover>
-									</FormItem>
-								)}
-							/>
-						)}
-						{!isDesktop && (
-							<FormField
-								control={form.control}
-								name='location'
-								render={({ field }) => (
-									<FormItem className='flex flex-col'>
-										<FormLabel>Sijainti (valinnainen)</FormLabel>
-										<Drawer open={openLocation} onOpenChange={setOpenLocation}>
-											<DrawerTrigger asChild>
-												<FormControl>
-													<Button
-														disabled={loading || valuesLoading}
-														variant='outline'
-														role='combobox'
-														className={cn(
-															'w-full items-center justify-between bg-white',
-															!field.value && 'text-muted-foreground'
-														)}>
-														<span className='truncate flex-1 min-w-0 text-left'>
-															{field.value
-																? values?.locations.find((location) => location === field.value)
-																: 'Valitse sijainti'}
-														</span>
-														<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-													</Button>
-												</FormControl>
-											</DrawerTrigger>
-											<DrawerContent className='p-0 bg-white'>
-												<DialogTitle className='px-4 pt-4 text-lg font-semibold'>
-													Sijainti (valinnainen)
-												</DialogTitle>
-												<DialogDescription className='px-4 pb-4 text-sm text-muted-foreground'>
-													Valitse sijainti
-												</DialogDescription>
-												<div className='px-4 py-0'>
-													<Command className='max-h-[60vh]'>
-														<CommandInput placeholder='Hae sijaintia' className='text-base' />
-														<CommandList>
-															<CommandEmpty>Sijaintia ei löytynyt</CommandEmpty>
-															<CommandGroup>
-																{values?.locations?.map((location) => (
-																	<CommandItem
-																		value={location}
-																		key={location}
-																		onSelect={() => {
-																			const currentValue = form.getValues('location');
-																			form.setValue(
-																				'location',
-																				currentValue === location ? undefined : location
-																			);
-																			setOpenLocation(false);
-																		}}>
-																		<Check
-																			className={cn(
-																				'mr-2 h-4 w-4',
-																				location === field.value ? 'opacity-100' : 'opacity-0'
-																			)}
-																		/>
-																		{location}
-																	</CommandItem>
-																))}
-															</CommandGroup>
-														</CommandList>
-													</Command>
-												</div>
-											</DrawerContent>
-										</Drawer>
-									</FormItem>
-								)}
-							/>
-						)}
+						<Combobox
+							form={form}
+							loading={loading}
+							valuesLoading={valuesLoading}
+							values={values?.locations}
+							fieldName='location'
+							label={'Sijainti (valinnainen)'}
+							defaultLabel={'Valitse sijainti'}
+							placeholder={'Hae sijaintia'}
+							noResultsText={'Sijaintia ei löytynyt'}
+						/>
 					</div>
 				</div>
 
 				{/* Technologies */}
 				<div className='flex-grow flex-shrink basis-1/2 min-w-0'>
-					{isDesktop && (
-						<FormField
-							control={form.control}
-							name='technologies'
-							render={() => (
-								<FormItem className='flex flex-col'>
-									<FormLabel>Teknologiat</FormLabel>
-									<Popover open={openTechnologies} onOpenChange={setOpenTechnologies}>
-										<PopoverTrigger asChild>
-											<FormControl>
-												<Button
-													disabled={loading || valuesLoading}
-													variant='outline'
-													role='combobox'
-													className={cn(
-														'w-full items-center justify-between bg-white ',
-														!form.getValues('technologies').length && 'text-muted-foreground'
-													)}>
-													<span className='truncate flex-1 min-w-0 text-left'>
-														{form.getValues('technologies').length
-															? form
-																	.getValues('technologies')
-																	.map((s) => s)
-																	.join(', ')
-															: 'Valitse teknologiat'}
-													</span>
-													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent align={'start'} className='p-0'>
-											<Command className='max-h-[300px]'>
-												<CommandInput placeholder='Hae teknologiaa' />
-												<CommandList>
-													<CommandEmpty>Teknologiaa ei löytynyt</CommandEmpty>
-													<CommandGroup>
-														{values?.technologies?.map((tech) => {
-															const currentValues = form.getValues('technologies') || [];
-															return (
-																<CommandItem
-																	value={tech}
-																	key={tech}
-																	onSelect={() => {
-																		const isSelected = currentValues.includes(tech);
-																		const newValues = isSelected
-																			? currentValues.filter((t) => t !== tech)
-																			: [...currentValues, tech];
-
-																		form.setValue('technologies', newValues, {
-																			shouldValidate: true,
-																			shouldDirty: true,
-																		});
-																	}}>
-																	<Check
-																		className={cn(
-																			'mr-2 h-4 w-4',
-																			currentValues.includes(tech) ? 'opacity-100' : 'opacity-0'
-																		)}
-																	/>
-																	{tech}
-																</CommandItem>
-															);
-														})}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</PopoverContent>
-									</Popover>
-								</FormItem>
-							)}
-						/>
-					)}
-					{!isDesktop && (
-						<FormField
-							control={form.control}
-							name='technologies'
-							render={() => (
-								<FormItem className='flex flex-col'>
-									<FormLabel>Teknologiat</FormLabel>
-									<Drawer open={openTechnologies} onOpenChange={setOpenTechnologies}>
-										<DrawerTrigger asChild>
-											<FormControl>
-												<Button
-													disabled={loading || valuesLoading}
-													variant='outline'
-													role='combobox'
-													className={cn(
-														'w-full items-center justify-between bg-white',
-														!form.getValues('technologies').length && 'text-muted-foreground'
-													)}>
-													<span className='truncate flex-1 min-w-0 text-left'>
-														{form.getValues('technologies').length
-															? form
-																	.getValues('technologies')
-																	.map((s) => s)
-																	.join(', ')
-															: 'Valitse teknologiat'}
-													</span>
-													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
-												</Button>
-											</FormControl>
-										</DrawerTrigger>
-										<DrawerContent className='p-0 bg-white'>
-											<DialogTitle className='px-4 pt-4 text-lg font-semibold'>
-												Teknologiat
-											</DialogTitle>
-											<DialogDescription className='px-4 pb-4 text-sm text-muted-foreground'>
-												Valitse teknologiat
-											</DialogDescription>
-											<div className='px-4 py-0'>
-												<Command className='max-h-[60vh]'>
-													<CommandInput placeholder='Hae teknologiaa' className='text-base' />
-													<CommandList>
-														<CommandEmpty>Teknologiaa ei löytynyt</CommandEmpty>
-														<CommandGroup>
-															{values?.technologies?.map((tech) => {
-																const currentValues = form.getValues('technologies') || [];
-																return (
-																	<CommandItem
-																		value={tech}
-																		key={tech}
-																		onSelect={() => {
-																			const isSelected = currentValues.includes(tech);
-																			const newValues = isSelected
-																				? currentValues.filter((t) => t !== tech)
-																				: [...currentValues, tech];
-
-																			form.setValue('technologies', newValues, {
-																				shouldValidate: true,
-																				shouldDirty: true,
-																			});
-																		}}>
-																		<Check
-																			className={cn(
-																				'mr-2 h-4 w-4',
-																				currentValues.includes(tech) ? 'opacity-100' : 'opacity-0'
-																			)}
-																		/>
-																		{tech}
-																	</CommandItem>
-																);
-															})}
-														</CommandGroup>
-													</CommandList>
-												</Command>
-											</div>
-										</DrawerContent>
-									</Drawer>
-								</FormItem>
-							)}
-						/>
-					)}
+					<Combobox
+						form={form}
+						multiple
+						loading={loading}
+						valuesLoading={valuesLoading}
+						values={values?.technologies}
+						fieldName='technologies'
+						label={'Teknologiat'}
+						defaultLabel={'Valitse teknologiat'}
+						placeholder={'Hae teknologiaa'}
+						noResultsText={'Teknologiaa ei löytynyt'}
+					/>
 				</div>
 
 				{/* Salary */}
