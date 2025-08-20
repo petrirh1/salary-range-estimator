@@ -1,13 +1,11 @@
 # Salary Range Estimator
 
-Frontend for the salary-range-estimator-backend. This application allows users to get a salary range estimate based on their input.
+Frontend for the [salary-range-estimator-backend](https://github.com/petrirh1/salary-range-estimator-backend).
 
 ## Features
 
-- A form to input data for salary estimation.
-- Displays the estimated salary range.
-- Responsive design.
-- Error handling with toasts.
+- Estimates salary ranges based on job title, experience, education, industry, location, and technologies.
+- Provides a summary of the factors affecting the salary.
 
 ## Getting Started
 
