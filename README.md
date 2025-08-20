@@ -1,6 +1,6 @@
 # Salary Range Estimator
 
-This is a simple React application that allows users to get a salary range estimate based on their input. The application is built with Vite, React, and TypeScript.
+Frontend for the salary-range-estimator-backend. This application allows users to get a salary range estimate based on their input.
 
 ## Features
 
