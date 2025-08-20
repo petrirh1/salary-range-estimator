@@ -1,6 +1,6 @@
 # Salary Range Estimator
 
-Frontend for the [salary-range-estimator-backend](https://github.com/petrirh1/salary-range-estimator-backend).
+Frontend for the [salary-range-estimator-backend]([https://github.com/petrirh1/salary-range-estimator](https://github.com/petrirh1/salary-range-estimator-backend)) that provides salary range estimations for IT professionals in Finland, leveraging Google's Gemini AI to generate these ranges based on multiple factors.
 
 ## Features
 
