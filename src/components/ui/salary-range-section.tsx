@@ -43,8 +43,13 @@ function SalaryRangeSection({ data, loading }: SalaryRangeSectionProps) {
 								Arvio perustuu syöttämiisi tietoihin sekä Suomen nykyiseen työmarkkinatilanteeseen.
 							</DialogDescription>
 						</DialogHeader>
-						<div className='grid gap-6 max-h-[50vh] pr-4 overflow-scroll'>
-							<Markdown>{salaryAnalysis}</Markdown>
+						<div className='grid gap-4 max-h-[50vh] pr-4 overflow-scroll'>
+							<Markdown
+								components={{
+									h3: ({ ...props }) => <h3 className='text-2xl font-semibold mt-6' {...props} />,
+								}}>
+								{salaryAnalysis}
+							</Markdown>
 						</div>
 						<DialogFooter>
 							<DialogClose asChild>
