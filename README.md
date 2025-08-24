@@ -4,7 +4,7 @@ Frontend for the [salary-range-estimator-backend](https://github.com/petrirh1/sa
 
 ## Features
 
-- Estimates salary ranges based on job title, experience, education, industry, location, and technologies.
+- Estimates salary ranges based on job title, experience, education, industry, location, technologies and salary.
 - Provides a summary of the factors affecting the salary.
 
 ## Getting Started
