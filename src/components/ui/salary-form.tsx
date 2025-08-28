@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { deepEqual } from '@/lib/utils';
+import deepEqual from 'deep-equal';
 import {
 	Form,
 	FormControl,
