@@ -19,7 +19,7 @@ import type { FormValidValuesResponse, SalaryRangeRequest } from '@/types';
 import { toast } from 'sonner';
 import { Combobox } from './combobox';
 
-const API_BASE = import.meta.env.VITE_API_PROXY || '/api';
+export const API_BASE = import.meta.env.VITE_API_PROXY || '/api';
 
 export const formSchema = z.object({
 	jobTitle: z.string().min(1),

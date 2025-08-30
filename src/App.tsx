@@ -1,4 +1,4 @@
-import { SalaryForm } from './components/ui/salary-form';
+import { API_BASE, SalaryForm } from './components/ui/salary-form';
 import { SalaryRangeSection } from './components/ui/salary-range-section';
 import { Header } from './components/ui/header';
 import { useEffect } from 'react';
@@ -17,7 +17,7 @@ function App() {
 	}, [error]);
 
 	const submit = (body: SalaryRangeRequest) => {
-		refetch('/api/salary', {
+		refetch(`${API_BASE}/salary`, {
 			method: 'POST',
 			body,
 			headers: { 'Content-Type': 'application/json' },
