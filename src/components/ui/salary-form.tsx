@@ -19,6 +19,8 @@ import type { FormValidValuesResponse, SalaryRangeRequest } from '@/types';
 import { toast } from 'sonner';
 import { Combobox } from './combobox';
 
+const API_BASE = import.meta.env.VITE_API_PROXY || '/api';
+
 export const formSchema = z.object({
 	jobTitle: z.string().min(1),
 	experience: z
@@ -63,7 +65,7 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 		data: values,
 		error: valuesError,
 		loading: valuesLoading,
-	} = useFetch<FormValidValuesResponse>('/api/form-allowed-values');
+	} = useFetch<FormValidValuesResponse>(`${API_BASE}/form-allowed-values`);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
