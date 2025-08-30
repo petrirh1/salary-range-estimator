@@ -107,9 +107,9 @@ function Combobox({
 			name={fieldName}
 			render={({ field, fieldState }) => {
 				const hasError = !!fieldState.error;
-
 				const TriggerButton = (
 					<Button
+						ref={field.ref}
 						disabled={loading || valuesLoading}
 						variant='outline'
 						role='combobox'
