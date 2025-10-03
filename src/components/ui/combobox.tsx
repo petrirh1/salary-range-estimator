@@ -2,7 +2,7 @@ import { useMediaQuery } from '@react-hook/media-query';
 import { FormField, FormItem, FormLabel } from './form';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { Button } from './button';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2Icon } from 'lucide-react';
 import {
 	Command,
 	CommandEmpty,
@@ -46,16 +46,26 @@ function Combobox({
 	const [isOpen, setIsOpen] = useState(false);
 	const isDesktop = useMediaQuery('(min-width: 768px)');
 
+	const isLoading = () =>
+		valuesLoading && (
+			<span className='inline-flex items-center ml-1'>
+				<Loader2Icon className='animate-spin' />
+			</span>
+		);
+
 	const renderButtonLabel = (field: any) => {
+		const renderDefault = () => (
+			<span className='flex items-center'>
+				{defaultLabel}
+				{isLoading()}
+			</span>
+		);
+
 		if (multiple) {
 			const currentValues = Array.isArray(field.value) ? field.value : [];
-			return currentValues.length ? (
-				currentValues.join(', ')
-			) : (
-				<span className='text-muted-foreground'>{defaultLabel}</span>
-			);
+			return currentValues.length ? currentValues.join(', ') : renderDefault();
 		} else {
-			return field.value ? values?.find((v) => v === field.value) : defaultLabel;
+			return field.value ? values?.find((v) => v === field.value) : renderDefault();
 		}
 	};
 
@@ -115,7 +125,6 @@ function Combobox({
 						role='combobox'
 						className={cn(
 							'w-full items-center justify-between bg-white border',
-							!field.value && 'text-muted-foreground',
 							hasError && 'border-red-500'
 						)}>
 						<span className='truncate flex-1 min-w-0 text-left'>{renderButtonLabel(field)}</span>

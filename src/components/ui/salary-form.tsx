@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Loader2Icon, RefreshCw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFetch } from '@/hooks/useFetch';
 import type { FormValidValuesResponse, SalaryRangeRequest } from '@/types';
 import { toast } from 'sonner';
@@ -91,6 +91,39 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 		}
 	}, [valuesError]);
 
+	const toastId = useRef<string | number | null>(null);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	useEffect(() => {
+		if (valuesLoading) {
+			timeoutRef.current = setTimeout(() => {
+				toastId.current = toast.info('Lomakkeen latauksessa kestää normaalia pidempään.', {
+					duration: Infinity,
+				});
+			}, 8_000);
+		} else {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+				timeoutRef.current = null;
+			}
+
+			if (toastId.current) {
+				toast.dismiss(toastId.current);
+				toastId.current = null;
+			}
+		}
+
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+
+			if (toastId.current) {
+				toast.dismiss(toastId.current);
+			}
+		};
+	}, [valuesLoading]);
+
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		if (!error && deepEqual(values, lastSubmittedValues)) {
 			toast.info('Ei muutoksia. Tulokset ovat ajan tasalla.');
@@ -120,10 +153,10 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 				/>
 
 				<div className='flex gap-4'>
+					{/* Experience */}
 					<div className='flex-shrink basis-1/2 min-w-0'>
-						{/* Experience */}
 						<FormField
-							disabled={loading}
+							disabled={loading || valuesLoading}
 							control={form.control}
 							name='experience'
 							render={({ field }) => (
@@ -164,8 +197,8 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 				</div>
 
 				<div className='flex gap-4 '>
+					{/* Industry */}
 					<div className='flex-shrink basis-1/2 min-w-0'>
-						{/* Industry */}
 						<Combobox
 							form={form}
 							loading={loading}
@@ -213,7 +246,7 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 
 				{/* Salary */}
 				<FormField
-					disabled={loading}
+					disabled={loading || valuesLoading}
 					control={form.control}
 					name='currentSalary'
 					render={({ field }) => (
@@ -236,7 +269,7 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 				/>
 
 				{/* Submit */}
-				<Button className='w-full' size={'lg'} type='submit' disabled={loading}>
+				<Button className='w-full' size={'lg'} type='submit' disabled={loading || valuesLoading}>
 					{loading ? (
 						<span className='inline-flex items-center gap-2'>
 							<Loader2Icon className='animate-spin' />
