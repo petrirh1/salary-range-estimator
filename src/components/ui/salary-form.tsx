@@ -134,6 +134,19 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 		setLastSubmittedValues(values);
 	}
 
+	const renderLoadingState = () => {
+		if (loading || valuesLoading) {
+			return (
+				<span className='inline-flex items-center gap-2'>
+					<Loader2Icon className='animate-spin' />
+					{loading ? 'Lasketaan markkina-arvoasi...' : 'Ladataan lomaketta...'}
+				</span>
+			);
+		}
+
+		return 'Laske markkina-arvoni';
+	};
+
 	return (
 		<Form {...form}>
 			<form
@@ -196,9 +209,9 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 					</div>
 				</div>
 
-				<div className='flex gap-4 '>
+				<div className='flex gap-4'>
 					{/* Industry */}
-					<div className='flex-shrink basis-1/2 min-w-0'>
+					<div className='flex-shrink basis-1/2 min-w-0 mt-auto'>
 						<Combobox
 							form={form}
 							loading={loading}
@@ -270,14 +283,7 @@ function SalaryForm({ submit, loading, error }: SalaryFormProps) {
 
 				{/* Submit */}
 				<Button className='w-full' size={'lg'} type='submit' disabled={loading || valuesLoading}>
-					{loading ? (
-						<span className='inline-flex items-center gap-2'>
-							<Loader2Icon className='animate-spin' />
-							Lasketaan markkina-arvoasi...
-						</span>
-					) : (
-						'Laske markkina-arvoni'
-					)}
+					{renderLoadingState()}
 				</Button>
 			</form>
 		</Form>

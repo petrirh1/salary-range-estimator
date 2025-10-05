@@ -46,20 +46,8 @@ function Combobox({
 	const [isOpen, setIsOpen] = useState(false);
 	const isDesktop = useMediaQuery('(min-width: 768px)');
 
-	const isLoading = () =>
-		valuesLoading && (
-			<span className='inline-flex items-center ml-1'>
-				<Loader2Icon className='animate-spin' />
-			</span>
-		);
-
 	const renderButtonLabel = (field: any) => {
-		const renderDefault = () => (
-			<span className='flex items-center'>
-				{defaultLabel}
-				{isLoading()}
-			</span>
-		);
+		const renderDefault = () => <span>{defaultLabel}</span>;
 
 		if (multiple) {
 			const currentValues = Array.isArray(field.value) ? field.value : [];
