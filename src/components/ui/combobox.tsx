@@ -2,7 +2,7 @@ import { useMediaQuery } from '@react-hook/media-query';
 import { FormField, FormItem, FormLabel } from './form';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { Button } from './button';
-import { Check, ChevronsUpDown, Loader2Icon } from 'lucide-react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import {
 	Command,
 	CommandEmpty,
